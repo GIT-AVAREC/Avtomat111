@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=3.0, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>CHINT Panel Studio HD • anii329126</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --sat: env(safe-area-inset-top, 0px);
+      --sab: env(safe-area-inset-bottom, 0px);
+      --sal: env(safe-area-inset-left, 0px);
+      --sar: env(safe-area-inset-right, 0px);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #060a13;
+      color: #f8fafc;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .font-mono-tech {
+      font-family: 'JetBrains Mono', monospace;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    @keyframes pulseRing {
+      0% { transform: scale(0.9); opacity: 0.95; }
+      70% { transform: scale(1.45); opacity: 0.15; }
+      100% { transform: scale(1.45); opacity: 0; }
+    }
+    .terminal-pulse {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: pulseRing 1.3s infinite ease-out;
+    }
+
+    @keyframes liveCurrentFlow {
+      to { stroke-dashoffset: -28; }
+    }
+    .live-wire-flow {
+      stroke-dasharray: 9 5;
+      animation: liveCurrentFlow 0.65s linear infinite;
+    }
+
+    @keyframes sheetSlideUp {
+      from { transform: translateY(100%); opacity: 0.6; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .sheet-anim {
+      animation: sheetSlideUp 0.24s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    .anii-smallcaps {
+      font-variant: small-caps;
+      text-transform: lowercase;
+      letter-spacing: 0.22em;
+      font-weight: 700;
+    }
+
+    #canvasViewport {
+      touch-action: pan-x pan-y;
+    }
+  </style>
+</head>
+<body class="flex flex-col h-screen w-screen overflow-hidden bg-[#060a13] text-slate-100">
+
+  <!-- ===================================================================== -->
+  <!-- 1. КОМПАКТНАЯ ВЕРХНЯЯ ПАНЕЛЬ (iPhone 18 Pro Max + Safe Area)         -->
+  <!-- ===================================================================== -->
+  <header class="bg-slate-900/95 backdrop-blur-md border-b border-slate-800 z-30 shrink-0" style="padding-top: max(8px, var(--sat));">
+    <!-- Строка 1: Бренд, 1Ф/3Ф переключатель, Рентген, ИИ Сборка, Тест, HD Фото, Firebase/GitHub -->
+    <div class="px-2.5 pb-1.5 flex items-center justify-between gap-1.5 overflow-x-auto no-scrollbar">
+      <div class="flex items-center gap-1.5 shrink-0">
+        <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-600 via-sky-500 to-cyan-400 flex items-center justify-center shadow-md shadow-sky-500/25">
+          <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.4">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-1">
+            <span class="text-xs font-extrabold tracking-tight text-white">CHINT 18 MAX</span>
+            <button id="phaseSystemBtn" type="button" onclick="togglePhaseSystem()" class="px-1.5 py-0.5 rounded-md text-[10px] font-mono-tech font-extrabold bg-blue-600/30 border border-sky-400/50 text-sky-200 active:scale-95">
+              3Ф 400В
+            </button>
+          </div>
+          <div id="headerStatusText" class="text-[10px] text-slate-400 leading-tight">Провода за модулями • 2 нажатия</div>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-1 shrink-0">
+        <button id="xrayBtn" type="button" onclick="toggleXrayMode()" class="px-2 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-[10px] font-bold text-slate-200 active:scale-95">
+          👁️ Рентген
+        </button>
+        <button type="button" onclick="openAiAssembler()" class="px-2 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/50 text-[10px] font-extrabold text-amber-300 active:scale-95">
+          🤖 ИИ Сборка
+        </button>
+        <button id="headerTestBtn" type="button" onclick="toggleTestMode()" class="px-2 py-1.5 rounded-xl bg-emerald-600/25 hover:bg-emerald-600/35 border border-emerald-400/50 text-[10px] font-extrabold text-emerald-300 active:scale-95">
+          ⚡ Тест
+        </button>
+        <button type="button" onclick="exportPanelHD()" class="px-2 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-[10px] font-extrabold text-white shadow shadow-blue-600/30 active:scale-95">
+          📸 HD Фото
+        </button>
+        <button type="button" onclick="openCloudGitHubModal()" class="px-2 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-amber-500/40 text-[10px] font-extrabold text-amber-300 active:scale-95">
+          ☁️ FB/Git
+        </button>
+      </div>
+    </div>
+
+    <!-- Строка 2: Цвет провода, Сечение кабеля и Номинал автомата прямо в шапке -->
+    <div class="px-2.5 pb-2 flex items-center justify-between gap-2 overflow-x-auto no-scrollbar">
+      <!-- Цвета проводов (L1, L2, L3, N, PE, Белый, Чёрный) -->
+      <div class="flex items-center gap-1 bg-slate-950/80 border border-slate-800 rounded-xl px-1.5 py-1 shrink-0">
+        <button type="button" data-wcolor="#d92626" data-wtag="L1" onclick="selectWireColor('#d92626','L1')" title="L1 Красный" class="w-5 h-5 rounded-full bg-[#d92626] ring-2 ring-white scale-110 transition"></button>
+        <button type="button" data-wcolor="#d4a017" data-wtag="L2" onclick="selectWireColor('#d4a017','L2')" title="L2 Жёлтый" class="w-5 h-5 rounded-full bg-[#d4a017] opacity-80 transition"></button>
+        <button type="button" data-wcolor="#1f8a3b" data-wtag="L3" onclick="selectWireColor('#1f8a3b','L3')" title="L3 Зелёный" class="w-5 h-5 rounded-full bg-[#1f8a3b] opacity-80 transition"></button>
+        <button type="button" data-wcolor="#1d5fd6" data-wtag="N" onclick="selectWireColor('#1d5fd6','N')" title="N Синий" class="w-5 h-5 rounded-full bg-[#1d5fd6] opacity-80 transition"></button>
+        <button type="button" data-wcolor="PE_STRIPE" data-wtag="PE" onclick="selectWireColor('PE_STRIPE','PE')" title="PE Жёлто-зелёный" class="w-5 h-5 rounded-full opacity-80 transition" style="background: repeating-linear-gradient(45deg, #c8d617 0px, #c8d617 4px, #1f8a3b 4px, #1f8a3b 8px);"></button>
+        <button type="button" data-wcolor="#d8dde3" data-wtag="L" onclick="selectWireColor('#d8dde3','L')" title="Белый" class="w-5 h-5 rounded-full bg-[#d8dde3] opacity-80 transition"></button>
+        <button type="button" data-wcolor="#1e2229" data-wtag="L" onclick="selectWireColor('#1e2229','L')" title="Чёрный" class="w-5 h-5 rounded-full bg-[#1e2229] border border-slate-500 opacity-80 transition"></button>
+      </div>
+
+      <!-- Сечение кабеля (1.5 .. 16 мм²) -->
+      <div class="flex items-center gap-1 shrink-0">
+        <span class="text-[10px] font-bold text-slate-400">мм²:</span>
+        <select id="headerGaugeSelect" onchange="changeWireGauge(parseFloat(this.value))" class="px-2 py-1 rounded-xl bg-slate-800 border border-slate-700 text-sky-300 font-mono-tech text-[11px] font-extrabold focus:outline-none focus:border-sky-400">
+          <option value="1.5">1.5</option>
+          <option value="2.5" selected>2.5</option>
+          <option value="4">4</option>
+          <option value="6">6</option>
+          <option value="10">10</option>
+          <option value="16">16</option>
+        </select>
+      </div>
+
+      <!-- Номинал автомата (1A .. 100A) прямо в шапке -->
+      <div class="flex items-center gap-1 shrink-0">
+        <span class="text-[10px] font-bold text-slate-400">Номинал:</span>
+        <select id="headerAmpsSelect" onchange="changeActiveOrNextAmps(parseInt(this.value, 10))" class="px-2 py-1 rounded-xl bg-slate-800 border border-amber-400/60 text-amber-300 font-mono-tech text-[11px] font-extrabold focus:outline-none focus:border-amber-300">
+          <option value="1">1A</option>
+          <option value="2">2A</option>
+          <option value="4">4A</option>
+          <option value="6">6A</option>
+          <option value="10">10A</option>
+          <option value="16" selected>16A</option>
+          <option value="20">20A</option>
+          <option value="25">25A</option>
+          <option value="32">32A</option>
+          <option value="40">40A</option>
+          <option value="50">50A</option>
+          <option value="63">63A</option>
+          <option value="80">80A</option>
+          <option value="100">100A</option>
+        </select>
+      </div>
+
+      <!-- Масштаб -->
+      <div class="flex items-center gap-0.5 shrink-0">
+        <button type="button" onclick="adjustZoom(-0.12)" class="w-7 h-7 rounded-lg bg-slate-800 border border-slate-700 text-xs font-extrabold">−</button>
+        <span id="zoomLabel" class="px-1 text-[10px] font-mono-tech font-bold text-slate-300">72%</span>
+        <button type="button" onclick="adjustZoom(0.12)" class="w-7 h-7 rounded-lg bg-slate-800 border border-slate-700 text-xs font-extrabold">+</button>
+      </div>
+    </div>
+
+    <!-- Баннер режима Тест щитка + кнопка «🔧 Исправить ошибки» -->
+    <div id="testControlBanner" class="hidden px-2.5 py-1.5 bg-slate-950 border-t border-emerald-500/30 flex items-center justify-between gap-1.5 overflow-x-auto no-scrollbar">
+      <div id="testSummaryPill" class="px-2 py-0.5 rounded-lg text-[10px] font-mono-tech font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shrink-0">
+        НОРМА 230/400В
+      </div>
+      <div class="flex items-center gap-1 shrink-0">
+        <button type="button" onclick="simulateVoltageSurge()" class="px-2 py-1 rounded-lg bg-amber-500/20 border border-amber-400/50 text-amber-200 text-[10px] font-bold active:scale-95">
+          ⚡ Скачок 275В
+        </button>
+        <button type="button" onclick="simulateRcdTestButton()" class="px-2 py-1 rounded-lg bg-orange-500/20 border border-orange-400/50 text-orange-200 text-[10px] font-bold active:scale-95">
+          🔘 Кнопка T (УЗО)
+        </button>
+        <button type="button" onclick="simulateShortCircuit()" class="px-2 py-1 rounded-lg bg-rose-600/25 border border-rose-500/50 text-rose-200 text-[10px] font-bold active:scale-95">
+          💥 КЗ на линии
+        </button>
+        <button type="button" onclick="fixAllDiagnosticsErrors()" class="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-extrabold shadow active:scale-95">
+          🔧 Исправить ошибки
+        </button>
+        <button type="button" onclick="openDiagnosticsModal()" class="px-2 py-1 rounded-lg bg-blue-600 text-white text-[10px] font-bold active:scale-95">
+          Отчёт
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===================================================================== -->
+  <!-- 2. РАБОЧЕЕ ПОЛЕ ЩИТКА (SVG С ВЫСОКИМ РАЗРЕШЕНИЕМ И СЛОЯМИ)          -->
+  <!-- ===================================================================== -->
+  <main id="canvasViewport" class="flex-1 relative overflow-auto bg-[#070b14] flex items-start justify-center p-2.5" onclick="handleCanvasBlankTap(event)">
+    <div id="panelTransformBox" class="origin-top transition-transform duration-150 ease-out" style="transform: scale(0.72);">
+      <svg id="panelSvg" width="840" height="690" viewBox="0 0 840 690" xmlns="http://www.w3.org/2000/svg" class="rounded-2xl shadow-[0_24px_60px_rgba(0,0,0,0.75)] bg-white"></svg>
+    </div>
+
+    <!-- Плавающее уведомление-тост -->
+    <div id="toastBox" class="hidden fixed top-24 left-1/2 -translate-x-1/2 z-50 px-3.5 py-2 rounded-2xl bg-slate-900/95 border border-sky-400/50 text-white text-xs font-semibold shadow-2xl pointer-events-none max-w-[90vw] text-center"></div>
+  </main>
+
+  <!-- ===================================================================== -->
+  <!-- 3. МИНИАТЮРНАЯ ПОДПИСЬ anii329126 В САМОМ НИЗУ ЭКРАНА                -->
+  <!-- ===================================================================== -->
+  <div class="bg-slate-950 border-t border-slate-800/90 px-3 py-1 flex items-center justify-between text-[10px] text-slate-500 shrink-0">
+    <span class="truncate">Нажмите на клемму 2 раза для провода • Коснитесь модуля для настроек</span>
+    <button type="button" onclick="openDrawingTextModal()" class="anii-smallcaps text-[12px] text-amber-300/90 hover:text-amber-200 px-2 py-0.5 rounded-lg bg-amber-500/10 border border-amber-400/25 active:scale-95 transition shrink-0" title="Открыть холст рисования и свободного текста">
+      anii329126
+    </button>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- 4. НИЖНЯЯ НАВИГАЦИЯ ДЛЯ БОЛЬШОГО ПАЛЬЦА (iPhone 18 Pro Max)         -->
+  <!-- ===================================================================== -->
+  <nav class="bg-slate-900/95 backdrop-blur-md border-t border-slate-800 z-30 shrink-0" style="padding-bottom: max(8px, var(--sab));">
+    <div class="px-2 pt-1.5 grid grid-cols-5 gap-1">
+      <button type="button" onclick="openDrawer('catalogDrawer')" class="flex flex-col items-center justify-center py-1.5 rounded-xl bg-blue-600/20 border border-blue-500/40 text-blue-300 active:scale-95">
+        <span class="text-sm leading-none mb-0.5">➕</span>
+        <span class="text-[10px] font-bold">Модули</span>
+      </button>
+      <button type="button" onclick="openAiAssembler()" class="flex flex-col items-center justify-center py-1.5 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-300 active:scale-95">
+        <span class="text-sm leading-none mb-0.5">🤖</span>
+        <span class="text-[10px] font-bold">ИИ Сборка</span>
+      </button>
+      <button type="button" onclick="toggleTestMode()" class="flex flex-col items-center justify-center py-1.5 rounded-xl bg-emerald-600/20 border border-emerald-500/40 text-emerald-300 active:scale-95">
+        <span class="text-sm leading-none mb-0.5">⚡</span>
+        <span id="bottomTestText" class="text-[10px] font-bold">Тест щитка</span>
+      </button>
+      <button type="button" onclick="openDrawer('presetsDrawer')" class="flex flex-col items-center justify-center py-1.5 rounded-xl bg-slate-800/80 border border-slate-700 text-slate-200 active:scale-95">
+        <span class="text-sm leading-none mb-0.5">📐</span>
+        <span class="text-[10px] font-bold">Шаблоны</span>
+      </button>
+      <button type="button" onclick="openDrawer('panelSettingsDrawer')" class="flex flex-col items-center justify-center py-1.5 rounded-xl bg-slate-800/80 border border-slate-700 text-slate-200 active:scale-95">
+        <span class="text-sm leading-none mb-0.5">📋</span>
+        <span class="text-[10px] font-bold">Щит / BOM</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ===================================================================== -->
+  <!-- ЯЩИК 1: КАТАЛОГ ВСЕХ МОДУЛЕЙ, СЧЁТЧИКОВ, ГРЕБЁНОК И КРОСС-МОДУЛЕЙ     -->
+  <!-- ===================================================================== -->
+  <div id="catalogDrawer" class="hidden fixed inset-x-0 bottom-0 z-40 bg-slate-900 border-t border-slate-700 rounded-t-3xl shadow-2xl sheet-anim" style="padding-bottom: max(14px, var(--sab));">
+    <div class="p-3.5 space-y-2.5 max-h-[78vh] flex flex-col">
+      <div class="w-10 h-1 bg-slate-700 rounded-full mx-auto shrink-0"></div>
+      <div class="flex items-center justify-between shrink-0">
+        <div>
+          <h3 class="text-sm font-extrabold text-white">Каталог модулей 1Ф и 3Ф (CHINT)</h3>
+          <p class="text-[11px] text-slate-400">Нажмите на модуль, чтобы установить на выбранную DIN-рейку</p>
+        </div>
+        <button type="button" onclick="closeAllDrawers()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-200 font-bold">✕</button>
+      </div>
+
+      <!-- Выбор целевой DIN-рейки -->
+      <div class="flex items-center justify-between gap-2 shrink-0">
+        <span class="text-[10px] font-bold uppercase text-slate-400">Целевая рейка:</span>
+        <div id="catalogRailPills" class="flex gap-1"></div>
+      </div>
+
+      <!-- Фильтры категорий -->
+      <div class="flex gap-1 overflow-x-auto no-scrollbar pb-0.5 shrink-0">
+        <button type="button" data-cat="all" onclick="setCatalogCategory('all')" class="cat-pill px-2.5 py-1 rounded-xl text-[11px] font-bold bg-blue-600 text-white shrink-0">Все</button>
+        <button type="button" data-cat="mcb" onclick="setCatalogCategory('mcb')" class="cat-pill px-2.5 py-1 rounded-xl text-[11px] font-bold bg-slate-800 text-slate-300 shrink-0">Автоматы 1-4P</button>
+        <button type="button" data-cat="rcd" onclick="setCatalogCategory('rcd')" class="cat-pill px-2.5 py-1 rounded-xl text-[11px] font-bold bg-slate-800 text-slate-300 shrink-0">УЗО / Диф</button>
+        <button type="button" data-cat="meter" onclick="setCatalogCategory('meter')" class="cat-pill px-2.5 py-1 rounded-xl text-[11px] font-bold bg-slate-800 text-slate-300 shrink-0">Счётчики / Реле / АВР</button>
+        <button type="button" data-cat="bus" onclick="setCatalogCategory('bus')" class="cat-pill px-2.5 py-1 rounded-xl text-[11px] font-bold bg-slate-800 text-slate-300 shrink-0">Гребёнки / Кросс / Шины</button>
+        <button type="button" data-cat="smart" onclick="setCatalogCategory('smart')" class="cat-pill px-2.5 py-1 rounded-xl text-[11px] font-bold bg-slate-800 text-slate-300 shrink-0">УЗИП / УЗДП / Wi-Fi / Таймер</button>
+      </div>
+
+      <!-- Сетка модулей -->
+      <div id="catalogItemsGrid" class="grid grid-cols-2 gap-2 overflow-y-auto pr-0.5 flex-1"></div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- ЯЩИК 2: ОФЛАЙН «ИИ СБОРКА» БЕЗ РУЧНОГО ВВОДА ТЕКСТА ДЛЯ КАБЕЛЕЙ     -->
+  <!-- ===================================================================== -->
+  <div id="aiAssemblerDrawer" class="hidden fixed inset-x-0 bottom-0 z-40 bg-slate-900 border-t border-amber-500/50 rounded-t-3xl shadow-2xl sheet-anim" style="padding-bottom: max(14px, var(--sab));">
+    <div class="p-3.5 space-y-2.5 max-h-[84vh] flex flex-col">
+      <div class="w-10 h-1 bg-slate-700 rounded-full mx-auto shrink-0"></div>
+      <div class="flex items-center justify-between shrink-0">
+        <div>
+          <h3 class="text-sm font-extrabold text-white">🤖 Офлайн «ИИ Сборка» щитка</h3>
+          <p class="text-[11px] text-slate-400">Выберите фазность, число кабелей, назначение и сечение из списков</p>
+        </div>
+        <button type="button" onclick="closeAllDrawers()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-200 font-bold">✕</button>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2 shrink-0">
+        <div>
+          <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Тип щитка</label>
+          <select id="aiPhaseSelect" onchange="onAiPhaseSelectChange(this.value)" class="w-full px-2.5 py-2 rounded-xl bg-slate-800 border border-slate-700 text-white text-xs font-bold">
+            <option value="3p">3-фазный (3Ф / 400В)</option>
+            <option value="1p">1-фазный (1Ф / 230В)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Кабелей на ЭЩ</label>
+          <select id="aiCableCountSelect" onchange="renderAiCableRows()" class="w-full px-2.5 py-2 rounded-xl bg-slate-800 border border-slate-700 text-amber-300 font-mono-tech text-xs font-extrabold">
+            <option value="2">2 кабеля</option>
+            <option value="3">3 кабеля</option>
+            <option value="4">4 кабеля</option>
+            <option value="5">5 кабелей</option>
+            <option value="6" selected>6 кабелей</option>
+            <option value="7">7 кабелей</option>
+            <option value="8">8 кабелей</option>
+            <option value="9">9 кабелей</option>
+            <option value="10">10 кабелей</option>
+            <option value="11">11 кабелей</option>
+            <option value="12">12 кабелей</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Выпадающие списки для каждого кабеля -->
+      <div id="aiCableRowsContainer" class="space-y-1.5 overflow-y-auto pr-0.5 flex-1"></div>
+
+      <button type="button" onclick="executeOfflineAiAssembly()" class="w-full py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 font-extrabold text-xs shadow-lg shadow-amber-500/25 active:scale-95 shrink-0">
+        ⚡ Собрать щиток
+      </button>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- ЯЩИК 3: ИНСПЕКТОР ВЫБРАННОГО МОДУЛЯ (НОМИНАЛ 1A-100A, ПОДПИСЬ, УДАЛЕНИЕ) -->
+  <!-- ===================================================================== -->
+  <div id="moduleInspectorDrawer" class="hidden fixed inset-x-0 bottom-0 z-40 bg-slate-900 border-t border-slate-700 rounded-t-3xl shadow-2xl sheet-anim" style="padding-bottom: max(14px, var(--sab));">
+    <div class="p-3.5 space-y-2.5 max-h-[82vh] overflow-y-auto">
+      <div class="w-10 h-1 bg-slate-700 rounded-full mx-auto"></div>
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 id="inspTitle" class="text-sm font-extrabold text-white">Модуль</h3>
+          <p id="inspSubtitle" class="text-[11px] text-slate-400">CHINT • Рейка 1</p>
+        </div>
+        <button type="button" onclick="closeAllDrawers()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-200 font-bold">✕</button>
+      </div>
+
+      <!-- Подпись линии -->
+      <div>
+        <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Подпись на корпусе / линии</label>
+        <div class="flex gap-1.5">
+          <input id="inspLabelInput" type="text" maxlength="12" oninput="setSelectedModuleProp('label', this.value)" class="flex-1 px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-white text-xs font-bold uppercase" />
+          <button type="button" onclick="toggleSelectedModuleSwitch()" class="px-3 py-1.5 rounded-xl bg-blue-600/25 border border-blue-400/50 text-sky-200 text-xs font-extrabold active:scale-95">
+            Рычаг ON/OFF
+          </button>
+        </div>
+        <div class="flex gap-1 overflow-x-auto no-scrollbar mt-1.5">
+          <button type="button" onclick="setSelectedModuleProp('label','ФАРТУК')" class="px-2 py-0.5 rounded-md bg-slate-800 text-[10px] font-bold text-slate-300">ФАРТУК</button>
+          <button type="button" onclick="setSelectedModuleProp('label','ВАРОЧНАЯ')" class="px-2 py-0.5 rounded-md bg-slate-800 text-[10px] font-bold text-slate-300">ВАРОЧНАЯ</button>
+          <button type="button" onclick="setSelectedModuleProp('label','ДУХ.ШКАФ')" class="px-2 py-0.5 rounded-md bg-slate-800 text-[10px] font-bold text-slate-300">ДУХ.ШКАФ</button>
+          <button type="button" onclick="setSelectedModuleProp('label','ХОЛОД')" class="px-2 py-0.5 rounded-md bg-slate-800 text-[10px] font-bold text-slate-300">ХОЛОД</button>
+          <button type="button" onclick="setSelectedModuleProp('label','СВЧ')" class="px-2 py-0.5 rounded-md bg-slate-800 text-[10px] font-bold text-slate-300">СВЧ</button>
+          <button type="button" onclick="setSelectedModuleProp('label','СВЕТ')" class="px-2 py-0.5 rounded-md bg-slate-800 text-[10px] font-bold text-slate-300">СВЕТ</button>
+          <button type="button" onclick="setSelectedModuleProp('label','РОЗЕТКИ')" class="px-2 py-0.5 rounded-md bg-slate-800 text-[10px] font-bold text-slate-300">РОЗЕТКИ</button>
+        </div>
+      </div>
+
+      <!-- Номинал автомата (1A .. 100A: список + сетка кнопок) -->
+      <div>
+        <div class="flex items-center justify-between mb-1">
+          <span class="text-[10px] font-bold uppercase text-slate-400">Номинал тока (1A — 100A)</span>
+          <select id="inspAmpsSelect" onchange="setSelectedModuleProp('amps', parseInt(this.value, 10))" class="px-2 py-1 rounded-lg bg-slate-800 border border-amber-400/60 text-amber-300 font-mono-tech text-xs font-extrabold">
+            <option value="1">1 A</option><option value="2">2 A</option><option value="4">4 A</option>
+            <option value="6">6 A</option><option value="10">10 A</option><option value="16">16 A</option>
+            <option value="20">20 A</option><option value="25">25 A</option><option value="32">32 A</option>
+            <option value="40">40 A</option><option value="50">50 A</option><option value="63">63 A</option>
+            <option value="80">80 A</option><option value="100">100 A</option>
+          </select>
+        </div>
+        <div class="grid grid-cols-7 gap-1">
+          <button type="button" data-ampbtn="1" onclick="setSelectedModuleProp('amps',1)" class="insp-amp-btn py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-[11px] font-mono-tech font-bold">1A</button>
+          <button type="button" data-ampbtn="2" onclick="setSelectedModuleProp('amps',2)" class="insp-amp-btn py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-[11px] font-mono-tech font-bold">2A</button>
+          <button type="button" data-ampbtn="4" onclick="setSelectedModuleProp('amps',4)" class="insp-amp-btn py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-[11px] font-mono-tech font-bold">4A</button>
+          <button type="button" data-ampbtn="6" onclick="setSelectedModuleProp('amps',6)" class="insp-amp-btn py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-[11px] font-mono-tech font-bold">6A</button>
+          <button type="button" data-ampbtn="10" onclick="setSelectedModuleProp('amps',10)" class="insp-amp-btn py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-[11px] font-mono-tech font-bold">10A</button>
+          <button type="button" data-ampbtn="16" onclick="setSelectedModuleProp('amps',16)" class="insp-amp-btn py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-[11px] font-mono-tech font-bold">16A</button>
+          <button type="button" data-ampbtn="20" onclick="setSelectedModuleProp('amps',20)" class="insp-amp-btn py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-[11px] font-mono-tech font-bold">20A</button>
+          <button type="button" data-ampbtn="25" onclick="setSelectedModuleProp('amps',25)" class="insp-amp-btn py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-[11px] font-mono-tech font-bold">25A</button>
+          <button type="button" data-ampbtn="32" onclick="setSelectedModuleProp('amps',32)" class="insp-amp-btn py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-[11px] font-mono-tech font-bold">32A</button>
+          <button type="button" data-ampbtn="40" onclick="setSelectedModuleProp('amps',40)" class="insp-amp-btn py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-[11px] font-mono-tech font-bold">40A</button>
+          <button type="button" data-ampbtn="50" onclick="setSelectedModuleProp('amps',50)" class="insp-amp-btn py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-[11px] font-mono-tech font-bold">50A</button>
+          <button type="button" data-ampbtn="63" onclick="setSelectedModuleProp('amps',63)" class="insp-amp-btn py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-[11px] font-mono-tech font-bold">63A</button>
+          <button type="button" data-ampbtn="80" onclick="setSelectedModuleProp('amps',80)" class="insp-amp-btn py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-[11px] font-mono-tech font-bold">80A</button>
+          <button type="button" data-ampbtn="100" onclick="setSelectedModuleProp('amps',100)" class="insp-amp-btn py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-[11px] font-mono-tech font-bold">100A</button>
+        </div>
+      </div>
+
+      <!-- Перемещение влево / вправо / на другую рейку и удаление -->
+      <div class="grid grid-cols-4 gap-1.5 pt-1">
+        <button type="button" onclick="shiftSelectedModule(-1)" class="py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs font-bold active:scale-95">◀ Влево</button>
+        <button type="button" onclick="shiftSelectedModule(1)" class="py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs font-bold active:scale-95">Вправо ▶</button>
+        <button type="button" onclick="moveSelectedModuleNextRail()" class="py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs font-bold text-sky-300 active:scale-95">↕ Рейка</button>
+        <button type="button" onclick="deleteSelectedModule()" class="py-2 rounded-xl bg-rose-600/25 border border-rose-500/50 text-rose-300 text-xs font-extrabold active:scale-95">🗑 Снять</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- ЯЩИК 4: ГОТОВЫЕ ШАБЛОНЫ СХЕМ (1Ф, 3Ф, АВР/ГЕНЕРАТОР)                -->
+  <!-- ===================================================================== -->
+  <div id="presetsDrawer" class="hidden fixed inset-x-0 bottom-0 z-40 bg-slate-900 border-t border-slate-700 rounded-t-3xl shadow-2xl sheet-anim" style="padding-bottom: max(14px, var(--sab));">
+    <div class="p-3.5 space-y-2 max-h-[72vh] overflow-y-auto">
+      <div class="w-10 h-1 bg-slate-700 rounded-full mx-auto"></div>
+      <div class="flex items-center justify-between">
+        <h3 class="text-sm font-extrabold text-white">Готовые схемы щитков CHINT</h3>
+        <button type="button" onclick="closeAllDrawers()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-200 font-bold">✕</button>
+      </div>
+      <button type="button" onclick="applyPreset('kitchen_3p'); closeAllDrawers();" class="w-full p-3 rounded-2xl bg-slate-800/90 hover:bg-slate-800 border border-slate-700 text-left">
+        <div class="text-xs font-extrabold text-white">3Ф Щиток кухни и дома (NB1L + NB1-63 + NXL-63 + Кросс)</div>
+        <div class="text-[11px] text-slate-400">3-фазный ввод, кросс-модуль, дифавтоматы, УЗО и автоматы с бирками</div>
+      </button>
+      <button type="button" onclick="applyPreset('apt_1p'); closeAllDrawers();" class="w-full p-3 rounded-2xl bg-slate-800/90 hover:bg-slate-800 border border-slate-700 text-left">
+        <div class="text-xs font-extrabold text-white">1Ф Квартирный щиток 230В (Ввод 2P + Счётчик + РКН + Гребёнка 2P)</div>
+        <div class="text-[11px] text-slate-400">Однофазная схема с реле напряжения, гребёнкой и групповыми линиями</div>
+      </button>
+      <button type="button" onclick="applyPreset('avr_3p'); closeAllDrawers();" class="w-full p-3 rounded-2xl bg-slate-800/90 hover:bg-slate-800 border border-slate-700 text-left">
+        <div class="text-xs font-extrabold text-white">3Ф Щиток с АВР (Сеть / Генератор I-0-II + ПЭФ + УЗИП)</div>
+        <div class="text-[11px] text-slate-400">Переключатель ввода, реле выбора фаз, защита от импульсных перенапряжений</div>
+      </button>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- ЯЩИК 5: НАСТРОЙКИ ЩИТКА И СПЕЦИФИКАЦИЯ (BOM)                         -->
+  <!-- ===================================================================== -->
+  <div id="panelSettingsDrawer" class="hidden fixed inset-x-0 bottom-0 z-40 bg-slate-900 border-t border-slate-700 rounded-t-3xl shadow-2xl sheet-anim" style="padding-bottom: max(14px, var(--sab));">
+    <div class="p-3.5 space-y-2.5 max-h-[78vh] overflow-y-auto">
+      <div class="w-10 h-1 bg-slate-700 rounded-full mx-auto"></div>
+      <div class="flex items-center justify-between">
+        <h3 class="text-sm font-extrabold text-white">Параметры бокса и спецификация</h3>
+        <button type="button" onclick="closeAllDrawers()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-200 font-bold">✕</button>
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <div>
+          <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Число DIN-реек</label>
+          <select id="railsCountSelect" onchange="changeRailsCount(parseInt(this.value,10))" class="w-full px-2.5 py-2 rounded-xl bg-slate-800 border border-slate-700 text-white text-xs font-bold">
+            <option value="1">1 рейка</option>
+            <option value="2" selected>2 рейки</option>
+            <option value="3">3 рейки</option>
+            <option value="4">4 рейки</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Цвет корпуса щитка</label>
+          <select id="boxThemeSelect" onchange="changeBoxTheme(this.value)" class="w-full px-2.5 py-2 rounded-xl bg-slate-800 border border-slate-700 text-white text-xs font-bold">
+            <option value="light" selected>Светло-серый / Белый</option>
+            <option value="dark">Антрацит / Графит</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="bomSummaryList" class="p-2.5 rounded-2xl bg-slate-950 border border-slate-800 space-y-1 text-xs max-h-40 overflow-y-auto"></div>
+
+      <div class="grid grid-cols-2 gap-2">
+        <button type="button" onclick="clearAllWires()" class="py-2.5 rounded-xl bg-amber-500/20 border border-amber-400/40 text-amber-200 text-xs font-bold active:scale-95">Удалить все провода</button>
+        <button type="button" onclick="clearEntirePanel()" class="py-2.5 rounded-xl bg-rose-600/20 border border-rose-500/40 text-rose-300 text-xs font-bold active:scale-95">Очистить щиток</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- МОДАЛЬНОЕ ОКНО: РЕДАКТИРОВАНИЕ ВЫБРАННОГО ПРОВОДА                      -->
+  <!-- ===================================================================== -->
+  <div id="wireModal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-sm p-4 space-y-3 sheet-anim">
+      <div class="flex items-center justify-between">
+        <h3 class="text-sm font-extrabold text-white">Настройка провода</h3>
+        <button type="button" onclick="closeModal('wireModal')" class="w-8 h-8 rounded-full bg-slate-800 text-slate-200 font-bold">✕</button>
+      </div>
+      <div>
+        <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Сечение кабеля (мм²)</label>
+        <select id="wireModalGauge" onchange="updateEditingWire('gauge', parseFloat(this.value))" class="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-sky-300 font-mono-tech text-xs font-bold">
+          <option value="1.5">1.5 мм²</option>
+          <option value="2.5">2.5 мм²</option>
+          <option value="4">4 мм²</option>
+          <option value="6">6 мм²</option>
+          <option value="10">10 мм²</option>
+          <option value="16">16 мм²</option>
+        </select>
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <div>
+          <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Бирка начало</label>
+          <input id="wireModalTagStart" type="text" maxlength="10" oninput="updateEditingWire('startTag', this.value)" class="w-full px-2.5 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-amber-300 text-xs font-mono-tech font-bold uppercase" />
+        </div>
+        <div>
+          <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Бирка конец</label>
+          <input id="wireModalTagEnd" type="text" maxlength="10" oninput="updateEditingWire('endTag', this.value)" class="w-full px-2.5 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-amber-300 text-xs font-mono-tech font-bold uppercase" />
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-2 pt-1">
+        <button type="button" onclick="deleteEditingWire()" class="py-2.5 rounded-xl bg-rose-600 text-white text-xs font-extrabold">Удалить провод</button>
+        <button type="button" onclick="closeModal('wireModal')" class="py-2.5 rounded-xl bg-blue-600 text-white text-xs font-extrabold">Готово</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- МОДАЛЬНОЕ ОКНО: ОТЧЁТ ДИАГНОСТИКИ + КНОПКА «🔧 Исправить ошибки»     -->
+  <!-- ===================================================================== -->
+  <div id="diagnosticsModal" class="hidden fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-end sm:items-center justify-center p-3">
+    <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-md max-h-[82vh] flex flex-col p-4 sheet-anim">
+      <div class="flex items-center justify-between pb-2.5 border-b border-slate-800">
+        <div>
+          <h3 class="text-sm font-extrabold text-white">Диагностика щитка</h3>
+          <p class="text-[11px] text-slate-400">Питание L1/L2/L3/N, КЗ, утечки и сечение кабеля</p>
+        </div>
+        <button type="button" onclick="closeModal('diagnosticsModal')" class="w-8 h-8 rounded-full bg-slate-800 text-slate-200 font-bold">✕</button>
+      </div>
+      <div id="diagnosticsList" class="flex-1 overflow-y-auto py-3 space-y-2 text-xs"></div>
+      <div class="pt-2 border-t border-slate-800 grid grid-cols-2 gap-2">
+        <button type="button" onclick="fixAllDiagnosticsErrors()" class="py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-extrabold active:scale-95">
+          🔧 Исправить ошибки
+        </button>
+        <button type="button" onclick="closeModal('diagnosticsModal')" class="py-2.5 px-3 rounded-xl bg-blue-600 text-white text-xs font-extrabold">
+          Закрыть
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- МОДАЛЬНОЕ ОКНО: СОХРАНЕНИЕ HD PNG НА iPhone                           -->
+  <!-- ===================================================================== -->
+  <div id="hdModal" class="hidden fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-md max-h-[88vh] flex flex-col p-4 space-y-3 sheet-anim">
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 class="text-sm font-extrabold text-white">HD Фото готово (3× Retina)</h3>
+          <p class="text-[11px] text-slate-400">Удерживайте картинку на iPhone → «Сохранить в Фото»</p>
+        </div>
+        <button type="button" onclick="closeModal('hdModal')" class="w-8 h-8 rounded-full bg-slate-800 text-slate-200 font-bold">✕</button>
+      </div>
+      <div class="overflow-auto rounded-2xl bg-slate-950 border border-slate-800 p-2 flex-1 flex items-center justify-center">
+        <img id="hdPreviewImg" alt="HD схема щитка" class="max-w-full h-auto rounded-xl" />
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <a id="hdDownloadAnchor" download="chint-panel-anii329126-HD.png" class="py-2.5 px-3 rounded-xl bg-blue-600 text-white text-xs font-extrabold text-center">
+          ⬇ Скачать PNG
+        </a>
+        <button type="button" onclick="closeModal('hdModal')" class="py-2.5 px-3 rounded-xl bg-slate-800 text-slate-200 text-xs font-bold">
+          Закрыть
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- МОДАЛЬНОЕ ОКНО: СТУДИЯ РИСОВАНИЯ И ТЕКСТА ПО НАЖАТИЮ НА anii329126    -->
+  <!-- ===================================================================== -->
+  <div id="drawingTextModal" class="hidden fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md flex flex-col justify-between p-3" style="padding-top: max(12px, var(--sat)); padding-bottom: max(12px, var(--sab));">
+    <div class="flex items-center justify-between pb-2 border-b border-slate-800 shrink-0">
+      <div class="flex items-center gap-2">
+        <span class="anii-smallcaps px-2.5 py-1 rounded-xl bg-amber-500/20 border border-amber-400/40 text-amber-300 text-sm">anii329126</span>
+        <div>
+          <h3 class="text-xs font-extrabold text-white">Холст рисования и свободного текста</h3>
+          <p class="text-[10px] text-slate-400">Рисуйте пальцем или выберите «Текст» и нажмите в любое место</p>
+        </div>
+      </div>
+      <button type="button" onclick="closeModal('drawingTextModal')" class="w-8 h-8 rounded-full bg-slate-800 text-white font-bold">✕</button>
+    </div>
+
+    <!-- Панель инструментов рисования и текста -->
+    <div class="py-2 flex flex-wrap items-center justify-between gap-1.5 shrink-0">
+      <div class="flex items-center gap-1">
+        <button id="toolPenBtn" type="button" onclick="setSketchTool('pen')" class="px-2.5 py-1 rounded-xl bg-blue-600 text-white text-[11px] font-bold">✏️ Кисть</button>
+        <button id="toolTextBtn" type="button" onclick="setSketchTool('text')" class="px-2.5 py-1 rounded-xl bg-slate-800 text-amber-300 border border-slate-700 text-[11px] font-bold">⌨️ Текст</button>
+        <button id="toolEraserBtn" type="button" onclick="setSketchTool('eraser')" class="px-2.5 py-1 rounded-xl bg-slate-800 text-slate-300 border border-slate-700 text-[11px] font-bold">🧽 Ластик</button>
+      </div>
+
+      <div class="flex items-center gap-1.5">
+        <select id="brushSizeSelect" class="px-2 py-1 rounded-lg bg-slate-800 border border-slate-700 text-sky-300 font-mono-tech text-[11px] font-bold">
+          <option value="2">2px</option>
+          <option value="4" selected>4px</option>
+          <option value="8">8px</option>
+          <option value="14">14px</option>
+        </select>
+        <button type="button" onclick="setSketchColor('#facc15')" class="w-5 h-5 rounded-full bg-amber-400 border border-white"></button>
+        <button type="button" onclick="setSketchColor('#38bdf8')" class="w-5 h-5 rounded-full bg-sky-400 border border-slate-600"></button>
+        <button type="button" onclick="setSketchColor('#f87171')" class="w-5 h-5 rounded-full bg-rose-400 border border-slate-600"></button>
+        <button type="button" onclick="setSketchColor('#4ade80')" class="w-5 h-5 rounded-full bg-emerald-400 border border-slate-600"></button>
+        <button type="button" onclick="setSketchColor('#ffffff')" class="w-5 h-5 rounded-full bg-white border border-slate-600"></button>
+        <button type="button" onclick="clearSketchCanvas()" class="px-2 py-1 rounded-lg bg-rose-600/20 text-rose-300 border border-rose-500/40 text-[10px] font-bold">Очистить</button>
+      </div>
+    </div>
+
+    <!-- Строка ввода текста с клавиатуры iPhone -->
+    <div id="sketchTextBar" class="hidden mb-1.5 p-2 rounded-2xl bg-slate-900 border border-amber-400/50 flex items-center gap-1.5 shrink-0">
+      <input id="sketchKeyboardInput" type="text" placeholder="Введите любой текст с клавиатуры..." class="flex-1 px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-white text-xs focus:outline-none focus:border-amber-400" />
+      <select id="sketchFontSize" class="px-2 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-amber-300 text-xs font-bold">
+        <option value="16">16px</option>
+        <option value="22" selected>22px</option>
+        <option value="30">30px</option>
+        <option value="38">38px</option>
+      </select>
+      <button type="button" onclick="insertSketchTextAtCursor()" class="px-3 py-1.5 rounded-xl bg-amber-500 text-slate-950 text-xs font-extrabold shrink-0">
+        Добавить
+      </button>
+    </div>
+
+    <!-- Поле рисования -->
+    <div class="flex-1 relative rounded-2xl overflow-hidden border border-slate-700 bg-[#0b1220]">
+      <canvas id="sketchCanvas" class="w-full h-full block touch-none"></canvas>
+      <div class="absolute bottom-2 right-3 pointer-events-none anii-smallcaps text-xs text-amber-300/80">anii329126</div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-2 pt-2 shrink-0">
+      <button type="button" onclick="saveSketchCanvasHD()" class="py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-extrabold">
+        📸 Сохранить рисунок HD
+      </button>
+      <button type="button" onclick="closeModal('drawingTextModal')" class="py-2.5 rounded-2xl bg-slate-800 border border-slate-700 text-slate-200 text-xs font-bold">
+        Закрыть
+      </button>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- МОДАЛЬНОЕ ОКНО: FIREBASE (whatsapp-fc91e) И ЗАГРУЗКА НА GITHUB         -->
+  <!-- ===================================================================== -->
+  <div id="cloudGitModal" class="hidden fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-end sm:items-center justify-center p-3">
+    <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-md max-h-[84vh] flex flex-col p-4 space-y-3 sheet-anim">
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 class="text-sm font-extrabold text-white">Firebase (whatsapp-fc91e) & GitHub</h3>
+          <p class="text-[11px] text-slate-400">Облачное сохранение схем и публикация index.html</p>
+        </div>
+        <button type="button" onclick="closeModal('cloudGitModal')" class="w-8 h-8 rounded-full bg-slate-800 text-slate-200 font-bold">✕</button>
+      </div>
+
+      <div class="p-2.5 rounded-2xl bg-slate-950 border border-slate-800 space-y-1.5 text-[11px]">
+        <div class="flex items-center justify-between">
+          <span class="text-slate-400">Project ID:</span>
+          <span class="font-mono-tech font-bold text-amber-300">whatsapp-fc91e</span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-slate-400">Статус облака:</span>
+          <span id="fbStatusBadge" class="font-mono-tech font-bold text-sky-300">Инициализация...</span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2">
+        <button type="button" onclick="saveProjectToFirestore()" class="py-2.5 px-3 rounded-xl bg-amber-500 text-slate-950 text-xs font-extrabold active:scale-95">
+          ☁️ Сохранить в Firebase
+        </button>
+        <button type="button" onclick="loadProjectFromFirestore()" class="py-2.5 px-3 rounded-xl bg-blue-600 text-white text-xs font-extrabold active:scale-95">
+          📥 Загрузить из Firebase
+        </button>
+      </div>
+
+      <div class="p-2.5 rounded-2xl bg-slate-950 border border-slate-800 space-y-1.5 text-[11px] text-slate-300 overflow-y-auto">
+        <div class="font-extrabold text-white text-xs">Как добавить этот файл на GitHub и Firebase Hosting:</div>
+        <div>1. Сохраните этот файл под именем <span class="font-mono-tech text-amber-300">index.html</span>.</div>
+        <div>2. На <b>GitHub.com</b> создайте репозиторий → <b>Add file → Upload files</b> → загрузите <span class="font-mono-tech text-amber-300">index.html</span> → включите <b>Settings → Pages</b> (ветка <span class="font-mono-tech">main</span>).</div>
+        <div>3. В <b>Firebase Console</b> (<span class="font-mono-tech">whatsapp-fc91e</span>) откройте <b>Hosting → Get started</b> и разверните <span class="font-mono-tech">index.html</span> через Firebase CLI (<span class="font-mono-tech">firebase deploy</span>) или подключите репозиторий GitHub.</div>
+      </div>
+
+      <button type="button" onclick="downloadHtmlSourceFile()" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white text-xs font-extrabold">
+        💾 Скачать готовый index.html
+      </button>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- МОДУЛЬ FIREBASE SDK (ПРОЕКТ whatsapp-fc91e ИЗ СКРИНШОТА)              -->
+  <!-- ===================================================================== -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDwGWAMY3ivKfZpZL087kB7tnj9GS3kCvY",
+      authDomain: "whatsapp-fc91e.firebaseapp.com",
+      projectId: "whatsapp-fc91e",
+      storageBucket: "whatsapp-fc91e.firebasestorage.app",
+      messagingSenderId: "245791575033",
+      appId: "1:245791575033:web:3255c5f20c3b3bddcf4b28",
+      measurementId: "G-M7YJSTX4EX"
+    };
+
+    let db = null;
+    let auth = null;
+    let currentUid = null;
+
+    try {
+      const app = initializeApp(firebaseConfig);
+      auth = getAuth(app);
+      db = getFirestore(app);
+
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          currentUid = user.uid;
+          const badge = document.getElementById('fbStatusBadge');
+          if (badge) badge.textContent = 'Подключено (' + user.uid.slice(0, 6) + ')';
+        }
+      });
+
+      await signInAnonymously(auth);
+    } catch (err) {
+      const badge = document.getElementById('fbStatusBadge');
+      if (badge) badge.textContent = 'Локальный режим';
+    }
+
+    window.saveProjectToFirestore = async function () {
+      if (!db || !currentUid) {
+        window.showToast('Firebase: сохранено локально в сессии');
+        return;
+      }
+      try {
+        await setDoc(doc(db, 'artifacts', 'whatsapp-fc91e', 'users', currentUid, 'panels', 'current_panel'), {
+          updatedAt: Date.now(),
+          data: JSON.stringify(window.getAppState())
+        });
+        window.showToast('☁️ Схема сохранена в Firebase (whatsapp-fc91e)');
+      } catch (e) {
+        window.showToast('Ошибка записи в облако, проверьте правила Firestore');
+      }
+    };
+
+    window.loadProjectFromFirestore = async function () {
+      if (!db || !currentUid) {
+        window.showToast('Firebase: нет активной облачной сессии');
+        return;
+      }
+      try {
+        const snap = await getDoc(doc(db, 'artifacts', 'whatsapp-fc91e', 'users', currentUid, 'panels', 'current_panel'));
+        if (snap.exists() && snap.data().data) {
+          window.restoreAppState(JSON.parse(snap.data().data));
+          window.showToast('📥 Схема загружена из Firebase');
+        } else {
+          window.showToast('В облаке пока нет сохранённой схемы');
+        }
+      } catch (e) {
+        window.showToast('Ошибка чтения из Firebase');
+      }
+    };
+  </script>
+
+  <!-- ===================================================================== -->
+  <!-- ОСНОВНОЙ СКРИПТ КОНСТРУКТОРА, ИИ-СБОРКИ, СИМУЛЯТОРА И HD ЭКСПОРТА  -->
+  <!-- ===================================================================== -->
+  <script>
+    // Константы геометрии рабочего поля SVG (840 x 690)
+    const SVG_W = 840;
+    const SVG_H = 690;
+    const UNIT_W = 36;      // Ширина 1 модульного места (18 мм)
+    const MOD_H = 112;     // Высота модуля на DIN-рейке
+    const RAIL_PITCH = 192;// Шаг между DIN-рейками по вертикали
+
+    // Допустимый длительный ток медного кабеля по ПУЭ (мм² -> А)
+    const CABLE_MAX_AMPS = {
+      1.5: 19,
+      2.5: 27,
+      4: 38,
+      6: 46,
+      10: 63,
+      16: 85
+    };
+
+    // Полный каталог модулей 1Ф и 3Ф
+    const MODULE_CATALOG = {
+      mcb1p: {
+        name: 'Автомат 1P',
+        model: 'NB1-63 1P',
+        cat: 'mcb',
+        units: 1,
+        defaultAmps: 16,
+        defaultLabel: 'ЛИНИЯ',
+        poles: 1,
+        accent: '#0284c7'
+      },
+      mcb2p: {
+        name: 'Ввод / Автомат 2P',
+        model: 'NB1-63 2P',
+        cat: 'mcb',
+        units: 2,
+        defaultAmps: 40,
+        defaultLabel: 'ВВОД 1Ф',
+        poles: 2,
+        accent: '#0284c7'
+      },
+      mcb3p: {
+        name: 'Автомат 3P',
+        model: 'NB1-63 3P',
+        cat: 'mcb',
+        units: 3,
+        defaultAmps: 25,
+        defaultLabel: '3Ф НАГР',
+        poles: 3,
+        accent: '#0284c7'
+      },
+      mcb4p: {
+        name: 'Вводной автомат 4P',
+        model: 'NB1-63 4P',
+        cat: 'mcb',
+        units: 4,
+        defaultAmps: 40,
+        defaultLabel: 'ВВОД 380В',
+        poles: 4,
+        accent: '#0284c7'
+      },
+      rcbo1p: {
+        name: 'Дифавтомат 1P+N',
+        model: 'NB1L 30mA',
+        cat: 'rcd',
+        units: 2,
+        defaultAmps: 16,
+        defaultLabel: 'ДИФ 1Ф',
+        poles: 2,
+        accent: '#0284c7'
+      },
+      rcbo3p: {
+        name: 'Дифавтомат 3P+N',
+        model: 'NB1L-4 30mA',
+        cat: 'rcd',
+        units: 4,
+        defaultAmps: 32,
+        defaultLabel: 'ДИФ 3Ф',
+        poles: 4,
+        accent: '#0284c7'
+      },
+      rccbo2p: {
+        name: 'УЗО 2P (230В)',
+        model: 'NXL-63 2P',
+        cat: 'rcd',
+        units: 2,
+        defaultAmps: 40,
+        defaultLabel: 'УЗО 230В',
+        poles: 2,
+        accent: '#d97706'
+      },
+      rccbo4p: {
+        name: 'УЗО 4P (400В)',
+        model: 'NXL-63 4P',
+        cat: 'rcd',
+        units: 4,
+        defaultAmps: 63,
+        defaultLabel: 'УЗО 400В',
+        poles: 4,
+        accent: '#d97706'
+      },
+      contactor1p: {
+        name: 'Контактор 1Ф',
+        model: 'NCH8-20/20',
+        cat: 'meter',
+        units: 2,
+        defaultAmps: 25,
+        defaultLabel: 'КМ 1Ф',
+        poles: 2,
+        accent: '#475569'
+      },
+      contactor3p: {
+        name: 'Контактор 3Ф',
+        model: 'NCH8-40/00',
+        cat: 'meter',
+        units: 4,
+        defaultAmps: 40,
+        defaultLabel: 'КМ 3Ф',
+        poles: 4,
+        accent: '#475569'
+      },
+      relay1p: {
+        name: 'Реле напряжения 1Ф',
+        model: 'РКН-230В',
+        cat: 'meter',
+        units: 2,
+        defaultAmps: 63,
+        defaultLabel: 'РКН 230В',
+        poles: 2,
+        accent: '#16a34a'
+      },
+      relay3p: {
+        name: 'Реле напряжения 3Ф',
+        model: 'РКН-380В',
+        cat: 'meter',
+        units: 4,
+        defaultAmps: 63,
+        defaultLabel: 'РКН 380В',
+        poles: 4,
+        accent: '#16a34a'
+      },
+      phaseSelector: {
+        name: 'Реле выбора фаз',
+        model: 'ПЭФ-319',
+        cat: 'meter',
+        units: 3,
+        defaultAmps: 40,
+        defaultLabel: 'ПЭФ 3Ф',
+        poles: 3,
+        accent: '#0d9488'
+      },
+      atsSwitch: {
+        name: 'АВР / Рубильник I-0-II',
+        model: 'SFT-463',
+        cat: 'meter',
+        units: 4,
+        defaultAmps: 63,
+        defaultLabel: 'АВР I-0-II',
+        poles: 4,
+        accent: '#ea580c'
+      },
+      meter1p: {
+        name: 'Счётчик 1-фазный',
+        model: 'DDSU666 1Ф',
+        cat: 'meter',
+        units: 2,
+        defaultAmps: 60,
+        defaultLabel: 'КВТ·Ч 1Ф',
+        poles: 2,
+        accent: '#2563eb'
+      },
+      meter3p: {
+        name: 'Счётчик 3-фазный',
+        model: 'DTSU666 3Ф',
+        cat: 'meter',
+        units: 4,
+        defaultAmps: 80,
+        defaultLabel: 'КВТ·Ч 3Ф',
+        poles: 4,
+        accent: '#2563eb'
+      },
+      comb1p: {
+        name: 'Гребёнка 1P (PIN)',
+        model: 'PIN 1P 63A',
+        cat: 'bus',
+        units: 3,
+        defaultAmps: 63,
+        defaultLabel: 'ГРЕБ 1P',
+        poles: 3,
+        accent: '#f59e0b'
+      },
+      comb2p: {
+        name: 'Гребёнка 2P (L+N)',
+        model: 'PIN 2P 63A',
+        cat: 'bus',
+        units: 4,
+        defaultAmps: 63,
+        defaultLabel: 'ГРЕБ 2P',
+        poles: 4,
+        accent: '#f59e0b'
+      },
+      comb3p: {
+        name: 'Гребёнка 3P (L1-L3)',
+        model: 'PIN 3P 63A',
+        cat: 'bus',
+        units: 3,
+        defaultAmps: 63,
+        defaultLabel: 'ГРЕБ 3P',
+        poles: 3,
+        accent: '#f59e0b'
+      },
+      comb3pn: {
+        name: 'Гребёнка 3P+N',
+        model: 'PIN 4P 63A',
+        cat: 'bus',
+        units: 4,
+        defaultAmps: 63,
+        defaultLabel: 'ГРЕБ 3P+N',
+        poles: 4,
+        accent: '#f59e0b'
+      },
+      cross2x7: {
+        name: 'Кросс-модуль 2×7 (1Ф)',
+        model: 'JX-207 125A',
+        cat: 'bus',
+        units: 3,
+        defaultAmps: 100,
+        defaultLabel: 'КРОСС 2×7',
+        poles: 2,
+        accent: '#0284c7'
+      },
+      cross4x7: {
+        name: 'Кросс-модуль 4×7 (3Ф)',
+        model: 'JX-407 125A',
+        cat: 'bus',
+        units: 4,
+        defaultAmps: 100,
+        defaultLabel: 'КРОСС 4×7',
+        poles: 4,
+        accent: '#0284c7'
+      },
+      busN: {
+        name: 'Шина нулевая N',
+        model: 'N-BUS 80A',
+        cat: 'bus',
+        units: 2,
+        defaultAmps: 80,
+        defaultLabel: 'ШИНА N',
+        poles: 2,
+        accent: '#1d5fd6'
+      },
+      busPE: {
+        name: 'Шина заземления PE',
+        model: 'PE-BUS 80A',
+        cat: 'bus',
+        units: 2,
+        defaultAmps: 80,
+        defaultLabel: 'ШИНА PE',
+        poles: 2,
+        accent: '#16a34a'
+      },
+      spd2p: {
+        name: 'УЗИП 1P+N (Защита)',
+        model: 'NU6-II 1P+N',
+        cat: 'smart',
+        units: 2,
+        defaultAmps: 40,
+        defaultLabel: 'УЗИП 1Ф',
+        poles: 2,
+        accent: '#dc2626'
+      },
+      spd4p: {
+        name: 'УЗИП 3P+N (40кА)',
+        model: 'NU6-II 3P+N',
+        cat: 'smart',
+        units: 4,
+        defaultAmps: 40,
+        defaultLabel: 'УЗИП 3Ф',
+        poles: 4,
+        accent: '#dc2626'
+      },
+      afdd: {
+        name: 'УЗДП (Защита дуги)',
+        model: 'NAFD-63 AFDD',
+        cat: 'smart',
+        units: 2,
+        defaultAmps: 16,
+        defaultLabel: 'УЗДП ДУГА',
+        poles: 2,
+        accent: '#9333ea'
+      },
+      wifiMcb: {
+        name: 'Wi-Fi автомат Smart',
+        model: 'NL1-WF 63A',
+        cat: 'smart',
+        units: 2,
+        defaultAmps: 25,
+        defaultLabel: 'WI-FI АВТ',
+        poles: 2,
+        accent: '#0ea5e9'
+      },
+      impulseRelay: {
+        name: 'Импульсное реле',
+        model: 'NRM8-16',
+        cat: 'smart',
+        units: 1,
+        defaultAmps: 16,
+        defaultLabel: 'ИМПУЛЬС',
+        poles: 1,
+        accent: '#6366f1'
+      },
+      astroTimer: {
+        name: 'Астро-таймер',
+        model: 'KG316T-ASTRO',
+        cat: 'smart',
+        units: 2,
+        defaultAmps: 16,
+        defaultLabel: 'ТАЙМЕР',
+        poles: 2,
+        accent: '#4f46e5'
+      },
+      dinSocket: {
+        name: 'Розетка на DIN-рейку',
+        model: 'NSK-16A 230V',
+        cat: 'smart',
+        units: 2,
+        defaultAmps: 16,
+        defaultLabel: 'РОЗЕТКА',
+        poles: 2,
+        accent: '#334155'
+      },
+      signalLamp: {
+        name: 'Сигнальная лампа 3Ф',
+        model: 'ND16-22DS',
+        cat: 'smart',
+        units: 1,
+        defaultAmps: 2,
+        defaultLabel: 'ЛАМПА',
+        poles: 1,
+        accent: '#ef4444'
+      }
+    };
+
+    // Варианты назначения кабелей для выпадающего списка в оффлайн «ИИ Сборка»
+    const AI_CABLE_PURPOSES = [
+      { id: 'in3', label: 'Ввод 3Ф (L1/L2/L3/N/PE)', defaultGauge: 10, defaultAmps: 40, modType: 'mcb4p', color: '#d92626', tag: 'ВВОД 3Ф' },
+      { id: 'in1', label: 'Ввод 1Ф (L/N/PE)', defaultGauge: 6, defaultAmps: 40, modType: 'mcb2p', color: '#d92626', tag: 'ВВОД 1Ф' },
+      { id: 'apron', label: 'Фартук кухни', defaultGauge: 2.5, defaultAmps: 16, modType: 'mcb1p', color: '#d92626', tag: 'ФАРТУК' },
+      { id: 'cooktop', label: 'Варочная панель', defaultGauge: 6, defaultAmps: 32, modType: 'rcbo1p', color: '#d92626', tag: 'ВАРОЧНАЯ' },
+      { id: 'oven', label: 'Духовой шкаф', defaultGauge: 2.5, defaultAmps: 16, modType: 'rcbo1p', color: '#d4a017', tag: 'ДУХ.ШКАФ' },
+      { id: 'fridge', label: 'Холодильник', defaultGauge: 2.5, defaultAmps: 16, modType: 'rcbo1p', color: '#1f8a3b', tag: 'ХОЛОД' },
+      { id: 'microwave', label: 'СВЧ печь', defaultGauge: 2.5, defaultAmps: 16, modType: 'mcb1p', color: '#d4a017', tag: 'СВЧ' },
+      { id: 'dishwasher', label: 'Посудомойка', defaultGauge: 2.5, defaultAmps: 16, modType: 'rcbo1p', color: '#1f8a3b', tag: 'ПОСУДОМ' },
+      { id: 'washer', label: 'Стиральная машина', defaultGauge: 2.5, defaultAmps: 16, modType: 'rcbo1p', color: '#1d5fd6', tag: 'СТИРАЛКА' },
+      { id: 'boiler', label: 'Бойлер', defaultGauge: 2.5, defaultAmps: 20, modType: 'wifiMcb', color: '#d92626', tag: 'БОЙЛЕР' },
+      { id: 'light', label: 'Освещение', defaultGauge: 1.5, defaultAmps: 10, modType: 'mcb1p', color: '#d4a017', tag: 'СВЕТ' },
+      { id: 'rooms', label: 'Розетки комнат', defaultGauge: 2.5, defaultAmps: 16, modType: 'mcb1p', color: '#1f8a3b', tag: 'РОЗЕТКИ' },
+      { id: 'ac', label: 'Кондиционер', defaultGauge: 2.5, defaultAmps: 16, modType: 'mcb1p', color: '#1d5fd6', tag: 'КОНДИЦ' },
+      { id: 'pump', label: 'Котёл / Насос', defaultGauge: 4, defaultAmps: 25, modType: 'mcb3p', color: '#d92626', tag: 'КОТЁЛ/НАСОС' },
+      { id: 'outdoor', label: 'Уличный свет / Навес', defaultGauge: 2.5, defaultAmps: 16, modType: 'rcbo1p', color: '#1f8a3b', tag: 'УЛИЦА' }
+    ];
+
+    // Глобальное состояние приложения
+    const state = {
+      phaseSystem: '3p',        // '1p' | '3p'
+      railsCount: 2,            // 1..4 DIN-рейки
+      modulesPerRail: 16,       // Макс модульных мест на рейке
+      activeRail: 0,
+      boxTheme: 'light',        // 'light' | 'dark'
+      xrayMode: false,          // false = провода ЗА модулями; true = полупрозрачный рентген
+      testMode: false,          // Режим теста щитка
+      surgeActive: false,       // Симуляция скачка напряжения 275В
+      shortCircuitActive: false,// Симуляция короткого замыкания
+      zoom: 0.72,
+      wireColor: '#d92626',
+      wireTag: 'L1',
+      wireGauge: 2.5,
+      nextAmps: 16,
+      pendingTerm: null,        // { modId, termId, defaultTag }
+      selectedModId: null,
+      editingWireId: null,
+      catalogCategory: 'all',
+      modules: [],              // { id, rail, slot, type, amps, label, isOn, tripped }
+      wires: []                 // { id, from: {modId, termId}, to: {modId, termId}, color, gauge, startTag, endTag }
+    };
+
+    // Кэш координат клемм при рендере SVG
+    let terminalMap = {};
+    // Результаты последнего запуска диагностики
+    let diagReport = {
+      issues: [],
+      energizedMods: new Set(),
+      energizedWires: new Set(),
+      faultWires: new Set()
+    };
+
+    // =====================================================================
+    // ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ СОСТОЯНИЯ И УВЕДОМЛЕНИЙ
+    // =====================================================================
+    window.getAppState = () => JSON.parse(JSON.stringify(state));
+    window.restoreAppState = (saved) => {
+      Object.assign(state, saved);
+      syncHeaderControls();
+      if (state.testMode) runDiagnostics();
+      renderPanel();
+    };
+
+    window.showToast = function (msg) {
+      const box = document.getElementById('toastBox');
+      box.textContent = msg;
+      box.classList.remove('hidden');
+      clearTimeout(window._toastTimer);
+      window._toastTimer = setTimeout(() => {
+        box.classList.add('hidden');
+      }, 2400);
+    };
+
+    function openDrawer(id) {
+      closeAllDrawers();
+      const el = document.getElementById(id);
+      if (el) el.classList.remove('hidden');
+      if (id === 'catalogDrawer') {
+        renderCatalogRailPills();
+        renderCatalogItems();
+      } else if (id === 'panelSettingsDrawer') {
+        renderBomSummary();
+      }
+    }
+
+    function closeAllDrawers() {
+      ['catalogDrawer', 'aiAssemblerDrawer', 'moduleInspectorDrawer', 'presetsDrawer', 'panelSettingsDrawer'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('hidden');
+      });
+    }
+
+    function closeModal(id) {
+      const el = document.getElementById(id);
+      if (el) el.classList.add('hidden');
+    }
+
+    function handleCanvasBlankTap(e) {
+      if (e.target.closest('g[data-mod-id]') || e.target.closest('g[data-term-id]') || e.target.closest('g[data-wire-id]')) {
+        return;
+      }
+      state.selectedModId = null;
+      state.pendingTerm = null;
+      updateHeaderStatus('Провода за модулями • Выберите клемму или модуль');
+      renderPanel();
+    }
+
+    function updateHeaderStatus(text) {
+      const el = document.getElementById('headerStatusText');
+      if (el) el.textContent = text;
+    }
+
+    // =====================================================================
+    // УПРАВЛЕНИЕ ВЕРХНЕЙ ПАНЕЛЬЮ (1Ф/3Ф, ЦВЕТ, СЕЧЕНИЕ, НОМИНАЛ, РЕНТГЕН, ZOOM)
+    // =====================================================================
+    function togglePhaseSystem() {
+      state.phaseSystem = state.phaseSystem === '3p' ? '1p' : '3p';
+      syncHeaderControls();
+      if (state.phaseSystem === '1p') {
+        applyPreset('apt_1p', true);
+        showToast('Переключено на 1-фазный щиток (1Ф / 230В)');
+      } else {
+        applyPreset('kitchen_3p', true);
+        showToast('Переключено на 3-фазный щиток (3Ф / 400В)');
+      }
+    }
+
+    function selectWireColor(color, tag) {
+      state.wireColor = color;
+      state.wireTag = tag;
+      document.querySelectorAll('[data-wcolor]').forEach(btn => {
+        const active = btn.da
